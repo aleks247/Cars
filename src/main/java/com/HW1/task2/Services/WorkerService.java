@@ -37,18 +37,18 @@ public class WorkerService {
         return ResponseEntity.noContent().build();
     }
 
-    public ResponseEntity<Worker> updateWorker(int id, Worker worker) {
+    public ResponseEntity<Worker> updateAlreadyExistingWorker(int id, Worker worker) {
         Optional<Worker> optionalWorker = workerRepository.findById(id);
         if (optionalWorker.isPresent()) {
             Worker newWorker = optionalWorker.get();
-            if (worker.getName() != null) {
-                newWorker.setName(worker.getName());
+            if (worker.getPosition() != null) {
+                newWorker.setPosition(worker.getPosition());
             }
             if (worker.getAge() != 0) {
                 newWorker.setAge(worker.getAge());
             }
-            if (worker.getPosition() != null) {
-                newWorker.setPosition(worker.getPosition());
+            if (worker.getName() != null) {
+                newWorker.setName(worker.getName());
             }
             workerRepository.save(newWorker);
             return ResponseEntity.ok(newWorker);
