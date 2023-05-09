@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,9 +21,7 @@ public class WorkerService {
     }
 
     public ResponseEntity<Worker> addWorker(Worker worker, UriComponentsBuilder uriComponentsBuilder) {
-        Worker savedWorker = workerRepository.save(worker);
-        URI location = uriComponentsBuilder.path("/workers/{id}").buildAndExpand(savedWorker.getId()).toUri();
-        return ResponseEntity.created(location).build();
+        return ResponseEntity.created(uriComponentsBuilder.path("/workers/{id}").buildAndExpand(workerRepository.save(worker).getId()).toUri()).build();
     }
 
     public ResponseEntity<Worker> getWorkerById(int id) {
@@ -37,18 +34,18 @@ public class WorkerService {
         return ResponseEntity.noContent().build();
     }
 
-    public ResponseEntity<Worker> updateAlreadyExistingWorker(int id, Worker worker) {
+    public ResponseEntity<Worker> updateWorker(int id, Worker worker) {
         Optional<Worker> optionalWorker = workerRepository.findById(id);
         if (optionalWorker.isPresent()) {
             Worker newWorker = optionalWorker.get();
-            if (worker.getPosition() != null) {
-                newWorker.setPosition(worker.getPosition());
+            if (worker.getName() != null) {
+                newWorker.setName(worker.getName());
             }
             if (worker.getAge() != 0) {
                 newWorker.setAge(worker.getAge());
             }
-            if (worker.getName() != null) {
-                newWorker.setName(worker.getName());
+            if (worker.getPosition() != null) {
+                newWorker.setPosition(worker.getPosition());
             }
             workerRepository.save(newWorker);
             return ResponseEntity.ok(newWorker);

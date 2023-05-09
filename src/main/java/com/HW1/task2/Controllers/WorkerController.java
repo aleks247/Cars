@@ -32,6 +32,6 @@ public class WorkerController {
     }
     @PutMapping("/updateWorker{id}")
     public ResponseEntity<Worker> updateWorker (int id, @RequestBody Worker worker) {
-        return workerService.updateAlreadyExistingWorker(id, worker);
+        return workerService.updateWorker(id, worker);
     }
 }
