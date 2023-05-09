@@ -17,7 +17,7 @@ public class WorkerService {
 
     public ResponseEntity<List<Worker>> getAllWorkers() {
         List<Worker> workers = (List<Worker>) workerRepository.findAll();
-        return ResponseEntity.ok(workers);
+        return ResponseEntity.ok(workers)
     }
 
     public ResponseEntity<Worker> addWorker(Worker worker, UriComponentsBuilder uriComponentsBuilder) {
