@@ -46,8 +46,7 @@ public class WorkerService {
             }
             if (worker.getAge() != 0) {
                 newWorker.setAge(worker.getAge());
-                //Creating merge conflict
-                //Creating merge conflict 2
+                System.out.println("Test");
             }
             if (worker.getPosition() != null) {
                 newWorker.setPosition(worker.getPosition());
