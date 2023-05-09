@@ -43,7 +43,7 @@ public class WorkerService {
             }
             if (worker.getAge() != 0) {
                 newWorker.setAge(worker.getAge());
-                System.out.println("Test");
+                //Nai nakraq merge conflict
             }
             if (worker.getRole() != null) {
                 newWorker.setRole(worker.getRole());
