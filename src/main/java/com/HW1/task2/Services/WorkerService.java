@@ -31,7 +31,7 @@ public class WorkerService {
 
     public ResponseEntity<Worker> deleteWorkerById(int id) {
         workerRepository.deleteById(id);
-        return ResponseEntity.noContent().build()
+        return ResponseEntity.noContent().build();
     }
 
     public ResponseEntity<Worker> updateWorker(int id, Worker worker) {
@@ -49,7 +49,7 @@ public class WorkerService {
                 newWorker.setRole(worker.getRole());
                 //Test for merge conflict
             }
-            workerRepository.save(newWorker)
+            workerRepository.save(newWorker);
             return ResponseEntity.ok(newWorker);
         } else {
             return ResponseEntity.notFound().build();
