@@ -47,7 +47,7 @@ public class WorkerService {
             if (worker.getRole() != null) {
                 newWorker.setRole(worker.getRole());
                 //Test for merge conflict
-                //TEST
+                //test
             }
             workerRepository.save(newWorker);
             return ResponseEntity.ok(newWorker);
