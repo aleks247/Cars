@@ -12,7 +12,7 @@ public class Worker {
     private int id;
     private String name;
     private int age;
-    private String position;
+    private String role;
 
     public int getId() {
         return id;
@@ -38,11 +38,11 @@ public class Worker {
         this.age = age;
     }
 
-    public String getPosition() {
-        return position;
+    public String getRole() {
+        return role;
     }
 
-    public void setPosition(String position) {
-        this.position = position;
+    public void setRole(String role) {
+        this.role = role;
     }
 }

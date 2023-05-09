@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,9 +21,7 @@ public class WorkerService {
     }
 
     public ResponseEntity<Worker> addWorker(Worker worker, UriComponentsBuilder uriComponentsBuilder) {
-        Worker savedWorker = workerRepository.save(worker);
-        URI location = uriComponentsBuilder.path("/workers/{id}").buildAndExpand(savedWorker.getId()).toUri();
-        return ResponseEntity.created(location).build();
+        return ResponseEntity.created(uriComponentsBuilder.path("/workers/{id}").buildAndExpand(workerRepository.save(worker).getId()).toUri()).build();
     }
 
     public ResponseEntity<Worker> getWorkerById(int id) {
@@ -48,8 +45,9 @@ public class WorkerService {
                 newWorker.setAge(worker.getAge());
                 System.out.println("Test");
             }
-            if (worker.getPosition() != null) {
-                newWorker.setPosition(worker.getPosition());
+            if (worker.getRole() != null) {
+                newWorker.setRole(worker.getRole());
+                //Test for merge conflict
             }
             workerRepository.save(newWorker);
             return ResponseEntity.ok(newWorker);
