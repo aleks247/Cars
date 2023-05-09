@@ -44,8 +44,8 @@ public class WorkerService {
             if (worker.getAge() != 0) {
                 newWorker.setAge(worker.getAge());
             }
-            if (worker.getPosition() != null) {
-                newWorker.setPosition(worker.getPosition());
+            if (worker.getRole() != null) {
+                newWorker.setRole(worker.getRole());
             }
             workerRepository.save(newWorker);
             return ResponseEntity.ok(newWorker);
