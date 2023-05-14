@@ -1,37 +1,50 @@
 package com.HW1.task2.Controllers;
 
-import com.HW1.task2.Entities.Worker;
-import com.HW1.task2.Services.WorkerService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.HW1.task2.DTOs.ManufacturerDTO;
+import com.HW1.task2.Entities.Manufacturer;
+import com.HW1.task2.Services.ManufacturerService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.crossstore.ChangeSetPersister;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 
-@Controller
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/manufacturers")
 public class WorkerController {
-    @Autowired
-    WorkerService workerService;
-    @GetMapping("/workers/all")
-    public ResponseEntity<List<Worker>> getAllWorkers(){
-        return workerService.getAllWorkers();
+    private final ManufacturerService manufacturerService;
+
+    @GetMapping("/all")
+    public ResponseEntity<List<ManufacturerDTO>> getAllManufacturers() {
+        List<ManufacturerDTO> manufacturers = manufacturerService.getAllManufacturers();
+        var status = manufacturers.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
+        return ResponseEntity.status(status).body(manufacturers);
     }
-    @PostMapping("workers/add")
-    public ResponseEntity<Worker> addWorker(@RequestBody Worker worker, UriComponentsBuilder uriComponentsBuilder){
-        return workerService.addWorker(worker, uriComponentsBuilder);
+
+    @PostMapping("/add")
+    public ResponseEntity<Manufacturer> addManufacturer(@RequestBody Manufacturer manufacturer, UriComponentsBuilder uriComponentsBuilder) {
+        URI location = uriComponentsBuilder.path("/manufacturers/{id}").buildAndExpand(manufacturerService.addManufacturer(manufacturer, uriComponentsBuilder).getId()).toUri();
+        return ResponseEntity.created(location).build();
     }
-    @GetMapping("/getWorker/{id}")
-    public ResponseEntity<Worker> getWorkerById(@PathVariable("id") int id) {
-        return workerService.getWorkerById(id);
+
+    @GetMapping("/getManufacturer/{id}")
+    public ResponseEntity<ManufacturerDTO> getManufacturerById(@PathVariable("id") int id) {
+        return ResponseEntity.ok(manufacturerService.getManufacturerById(id));
     }
-    @DeleteMapping("/deleteWorker/{id}")
-    public ResponseEntity<Worker> deleteWorkerById(@PathVariable("id") int id) {
-        return workerService.deleteWorkerById(id);
+
+    @DeleteMapping("/deleteManufacturer/{id}")
+    public ResponseEntity<Manufacturer> deleteManufacturerById(@PathVariable("id") int id) {
+        manufacturerService.deleteManufacturerById(id);
+        return ResponseEntity.noContent().build();
     }
-    @PutMapping("/updateWorker{id}")
-    public ResponseEntity<Worker> updateWorker (int id, @RequestBody Worker worker) {
-        return workerService.updateWorker(id, worker);
+
+    @PutMapping("/updateManufacturer{id}")
+    public ResponseEntity<ManufacturerDTO> updateManufacturer(int id, @RequestBody Manufacturer manufacturer) throws ChangeSetPersister.NotFoundException {
+        return ResponseEntity.ok(manufacturerService.updateManufacturer(id, manufacturer));
     }
 }

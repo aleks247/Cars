@@ -1,50 +1,64 @@
 package com.HW1.task2.Controllers;
 
+import com.HW1.task2.DTOs.CarDTO;
 import com.HW1.task2.Entities.Car;
 import com.HW1.task2.Services.CarService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.crossstore.ChangeSetPersister;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
-@Controller
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/cars")
 public class CarController {
-    @Autowired
-    CarService carService;
+    private final CarService carService;
 
-    @GetMapping("/cars/all")
-    public ResponseEntity<List<Car>> getAllManufacturers() {
-        return carService.getAllCars();
+    @GetMapping("/all")
+    public ResponseEntity<List<CarDTO>> getAllCars() {
+        List<CarDTO> cars = carService.getAllCars();
+        var status = cars.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
+        return ResponseEntity.status(status).body(cars);
     }
 
-    @PostMapping("/cars/add")
-    public ResponseEntity<Car> addCar(@RequestBody Car car, UriComponentsBuilder uriComponentsBuilder) {
-        return carService.addCar(car, uriComponentsBuilder);
-    }
-    @GetMapping("/getCarByManufacturerName/{name}")
-    public ResponseEntity<List<Car>> getCarByManufacturerName(@PathVariable("name") String manufacturerName){
-        return carService.getCarByManufacturerName(manufacturerName);
+    @PostMapping("/cars")
+    public ResponseEntity<Void> addCar(@RequestBody Car car, UriComponentsBuilder uriComponentsBuilder) {
+        URI location = uriComponentsBuilder.path("/cars/{id}").buildAndExpand(carService.addCar(car).getId()).toUri();
+        return ResponseEntity.created(location).build();
     }
 
     @GetMapping("/getCar/{id}")
-    public ResponseEntity<Car> getCarById(@PathVariable("id") int id) {
-        return carService.getCarById(id);
+    public ResponseEntity<CarDTO> getCarById(@PathVariable("id") int id) {
+        return ResponseEntity.ok(carService.getCarById(id));
     }
+
+    @GetMapping("/getCarByManufacturerName/{name}")
+    public ResponseEntity<List<CarDTO>> getCarByManufacturerName(@PathVariable("name") String manufacturerName) {
+        List<CarDTO> cars = carService.getCarByManufacturerName(manufacturerName);
+        var status = cars.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
+        return ResponseEntity.status(status).body(cars);
+    }
+
     @GetMapping("/getCarByProcessorModel/{model}")
-    public ResponseEntity<List<Car>> getCarByProcessorModel(@PathVariable("model") String processorModel){
-        return carService.getCarByProcessorModel(processorModel);
+    public ResponseEntity<List<CarDTO>> getCarByProcessorModel(@PathVariable("model") String processorModel) {
+        List<CarDTO> cars = carService.getCarByProcessorModel(processorModel);
+        var status = cars.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
+        return ResponseEntity.status(status).body(cars);
     }
 
     @DeleteMapping("/deleteCar/{id}")
     public ResponseEntity<Car> deleteCarById(@PathVariable("id") int id) {
-        return carService.deleteCarById(id);
+        carService.deleteCarById(id);
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/updateCar{id}")
-    public ResponseEntity<Car> updateCar(@PathVariable(value = "id") int id, @RequestBody Car updatedCar) throws ChangeSetPersister.NotFoundException {
-        return carService.updateCar(id, updatedCar);
+    public ResponseEntity<CarDTO> updateCar(@PathVariable(value = "id") int id, @RequestBody Car updatedCar) throws ChangeSetPersister.NotFoundException {
+        return ResponseEntity.ok(carService.updateCar(id, updatedCar));
     }
 }
