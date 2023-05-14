@@ -9,6 +9,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
 @Data
+@Table(name = "car")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
