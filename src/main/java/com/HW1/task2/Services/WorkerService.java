@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
-
+import org.springframework.web.util.UriComponentsBuilder;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,7 +22,7 @@ public class WorkerService {
         return workers.stream().map(mnf -> modelMapper.map(mnf, WorkerDTO.class)).collect(Collectors.toList());
     }
 
-    public Worker addWorker(Worker worker) {
+    public Worker addWorker(Worker worker, UriComponentsBuilder uriComponentsBuilder) {
         return workerRepository.save(worker);
     }
 

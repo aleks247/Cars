@@ -12,9 +12,9 @@
 	<artifactId>task2</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>task2</name>
-	<description>Demo project for Spring Boot</description>
+	<description>A task for homework</description>
 	<properties>
-		<java.version>20</java.version>
+		<java.version>19</java.version>
 	</properties>
 	<dependencies>
 		<dependency>
