@@ -1,60 +1,49 @@
 package com.HW1.task2.Services;
 
+import com.HW1.task2.DTOs.EngineDTO;
 import com.HW1.task2.Entities.Engine;
 import com.HW1.task2.Repositories.EngineRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.URI;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Service
+@RequiredArgsConstructor
 public class EngineService {
-    @Autowired
-    EngineRepository engineRepository;
+    private final EngineRepository engineRepository;
+    private final ModelMapper modelMapper;
 
-    public ResponseEntity<List<Engine>> getAllEngines() {
+    public List<EngineDTO> getAllEngines() {
         List<Engine> engines = (List<Engine>) engineRepository.findAll();
-        return ResponseEntity.ok(engines);
+        return engines.stream().map(prc -> modelMapper.map(prc, EngineDTO.class)).collect(Collectors.toList());
     }
 
-    public ResponseEntity<Engine> addEngine(Engine engine, UriComponentsBuilder uriComponentsBuilder) {
-        Engine savedEngine = engineRepository.save(engine);
-        URI location = uriComponentsBuilder.path("/engines/{id}").buildAndExpand(savedEngine.getId()).toUri();
-        return ResponseEntity.created(location).build();
+    public Engine addEngine(Engine engine, UriComponentsBuilder uriComponentsBuilder) {
+        return engineRepository.save(engine);
     }
 
-    public ResponseEntity<Engine> getEngineById(int id) {
+    public EngineDTO getEngineById(int id) {
         Optional<Engine> engine = engineRepository.findById(id);
-        return engine.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return modelMapper.map(engine, EngineDTO.class);
     }
 
-    public ResponseEntity<Engine> deleteEngineById(int id) {
+    public void deleteEngineById(int id) {
         engineRepository.deleteById(id);
-        return ResponseEntity.noContent().build();
     }
 
-    public ResponseEntity<Engine> updateEngine(int id, Engine engine) {
-        Optional<Engine> optionalEngine = engineRepository.findById(id);
-        if (optionalEngine.isPresent()) {
-            Engine newEngine = optionalEngine.get();
-            if (engine.getHorsePower() != 0) {
-                newEngine.setHorsePower(engine.getHorsePower());
-            }
-            if (engine.getModel() != null) {
-                newEngine.setModel(engine.getModel());
-            }
-            if (engine.getManufacturer() != null) {
-                newEngine.setManufacturer(engine.getManufacturer());
-            }
-            engineRepository.save(newEngine);
-            return ResponseEntity.ok(newEngine);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public EngineDTO updateEngine(int id, Engine updatedEngine) throws ChangeSetPersister.NotFoundException {
+        Engine engineUpdate = engineRepository.findById(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
+        engineUpdate.setModel(updatedEngine.getModel());
+        engineUpdate.setManufacturer(updatedEngine.getManufacturer());
+        engineUpdate.setHorsePower(updatedEngine.getHorsePower());
+        engineRepository.save(engineUpdate);
+        return modelMapper.map(engineUpdate, EngineDTO.class);
     }
 }

@@ -1,56 +1,46 @@
 package com.HW1.task2.Services;
 
+import com.HW1.task2.DTOs.ManufacturerDTO;
 import com.HW1.task2.Entities.Manufacturer;
 import com.HW1.task2.Repositories.ManufacturerRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.URI;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class ManufacturerService {
-    @Autowired
-    ManufacturerRepository manufacturerRepository;
+    private final ManufacturerRepository manufacturerRepository;
+    private final ModelMapper modelMapper;
 
-    public ResponseEntity<List<Manufacturer>> getAllManufacturers() {
+    public List<ManufacturerDTO> getAllManufacturers() {
         List<Manufacturer> manufacturers = (List<Manufacturer>) manufacturerRepository.findAll();
-        return ResponseEntity.ok(manufacturers);
+        return manufacturers.stream().map(mnf -> modelMapper.map(mnf, ManufacturerDTO.class)).collect(Collectors.toList());
     }
 
-    public ResponseEntity<Manufacturer> addManufacturer(Manufacturer manufacturer, UriComponentsBuilder uriComponentsBuilder) {
-        Manufacturer savedManufacturers = manufacturerRepository.save(manufacturer);
-        URI location = uriComponentsBuilder.path("/manufacturers/{id}").buildAndExpand(savedManufacturers.getId()).toUri();
-        return ResponseEntity.created(location).build();
+    public Manufacturer addManufacturer(Manufacturer manufacturer, UriComponentsBuilder uriComponentsBuilder) {
+        return manufacturerRepository.save(manufacturer);
     }
 
-    public ResponseEntity<Manufacturer> getManufacturerById(int id) {
-        Optional<Manufacturer> manufacturer = manufacturerRepository.findById(id);
-        return manufacturer.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public ManufacturerDTO getManufacturerById(int id) {
+        Manufacturer manufacturer = manufacturerRepository.findById(id).orElseThrow(RuntimeException::new);
+        return modelMapper.map(manufacturer, ManufacturerDTO.class);
     }
 
-    public ResponseEntity<Manufacturer> deleteManufacturerById(int id) {
+    public void deleteManufacturerById(int id) {
         manufacturerRepository.deleteById(id);
-        return ResponseEntity.noContent().build();
     }
 
-    public ResponseEntity<Manufacturer> updateManufacturer(int id, Manufacturer manufacturer) {
-        Optional<Manufacturer> optionalManufacturer = manufacturerRepository.findById(id);
-        if (optionalManufacturer.isPresent()) {
-            Manufacturer newManufacturer = optionalManufacturer.get();
-            if (manufacturer.getName() != null) {
-                newManufacturer.setName(manufacturer.getName());
-            }
-            if (manufacturer.getYearOfCreation() != 0) {
-                newManufacturer.setYearOfCreation(manufacturer.getYearOfCreation());
-            }
-            manufacturerRepository.save(newManufacturer);
-            return ResponseEntity.ok(newManufacturer);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public ManufacturerDTO updateManufacturer(int id, Manufacturer updatedManufacturer) throws ChangeSetPersister.NotFoundException {
+        Manufacturer manufacturerUpdate = manufacturerRepository.findById(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
+        manufacturerUpdate.setName(updatedManufacturer.getName());
+        manufacturerUpdate.setYearOfCreation(updatedManufacturer.getYearOfCreation());
+        manufacturerRepository.save(manufacturerUpdate);
+        return modelMapper.map(manufacturerUpdate, ManufacturerDTO.class);
     }
 }

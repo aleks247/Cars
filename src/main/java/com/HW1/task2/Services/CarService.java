@@ -1,58 +1,58 @@
 package com.HW1.task2.Services;
 
+import com.HW1.task2.DTOs.CarDTO;
 import com.HW1.task2.Entities.Car;
 import com.HW1.task2.Repositories.CarRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.crossstore.ChangeSetPersister;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.URI;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class CarService {
-    @Autowired
-    CarRepository carRepository;
+    private final CarRepository carRepository;
+    private final ModelMapper modelMapper;
 
-    public ResponseEntity<List<Car>> getAllCars() {
+    public List<CarDTO> getAllCars() {
         List<Car> cars = (List<Car>) carRepository.findAll();
-        return ResponseEntity.ok(cars);
+        return cars.stream().map(lpt -> modelMapper.map(lpt, CarDTO.class)).collect(Collectors.toList());
     }
 
-    public ResponseEntity<Car> addCar(Car car, UriComponentsBuilder uriComponentsBuilder) {
-        Car savedCar = carRepository.save(car);
-        URI location = uriComponentsBuilder.path("/cars/{id}").buildAndExpand(savedCar.getId()).toUri();
-        return ResponseEntity.created(location).build();
+    public Car addCar(Car car) {
+        return carRepository.save(car);
     }
 
-    public ResponseEntity<Car> getCarById(int id) {
-        Optional<Car> car = carRepository.findById(id);
-        return car.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public CarDTO getCarById(int id) {
+        Car car = carRepository.findById(id).orElseThrow(RuntimeException::new);
+        return modelMapper.map(car, CarDTO.class);
     }
-    public ResponseEntity<List<Car>> getCarByManufacturerName(String manufacturerName){
+
+    public List<CarDTO> getCarByManufacturerName(String manufacturerName) {
         List<Car> cars = carRepository.getCarByManufacturerName(manufacturerName);
-        return ResponseEntity.ok(cars);
-    }
-    public ResponseEntity<List<Car>> getCarByProcessorModel(String model){
-        List<Car> cars = carRepository.getCarByEngineModel(model);
-        return ResponseEntity.ok(cars);
+        return cars.stream().map(lpt -> modelMapper.map(lpt, CarDTO.class)).collect(Collectors.toList());
     }
 
-    public ResponseEntity<Car> deleteCarById(int id) {
-        carRepository.deleteById(id);
-        return ResponseEntity.noContent().build();
+    public List<CarDTO> getCarByProcessorModel(String model) {
+        List<Car> cars = carRepository.getCarByEngineModel(model);
+        return cars.stream().map(lpt -> modelMapper.map(lpt, CarDTO.class)).collect(Collectors.toList());
     }
-    public ResponseEntity<Car> updateCar(int id, Car updatedCar) throws ChangeSetPersister.NotFoundException {
+
+    public void deleteCarById(int id) {
+        carRepository.deleteById(id);
+    }
+
+    public CarDTO updateCar(int id, Car updatedCar) throws ChangeSetPersister.NotFoundException {
         Car carToUpdate = carRepository.findById(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
         carToUpdate.setManufacturer(updatedCar.getManufacturer());
         carToUpdate.setBrand(updatedCar.getBrand());
         carToUpdate.setEngine(updatedCar.getEngine());
         carToUpdate.setManufacturer(updatedCar.getManufacturer());
         carToUpdate.setYearOfCreation(updatedCar.getYearOfCreation());
-        Car savedCar = carRepository.save(carToUpdate);
-        return ResponseEntity.ok(savedCar);
+        carRepository.save(carToUpdate);
+        return modelMapper.map(carToUpdate, CarDTO.class);
     }
 }
